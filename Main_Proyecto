@@ -1,9 +1,15 @@
-/*
- * File:   SegProyecto.c
- * Author: Juan Peneleu 15446
+/* UNIVERSIDAD DEL VALLE DE GUATEMALA
+ * DEPARTAMENTO DE INGENIERIA ELCTRONICA & MECATRONICA
+ * CURSO DE PROGRAMACION DE MICROCONTROLADORES
+ * ProyectoNo.2
+ * 
+ * File:   main_Proyecto.c
+ * Author: Selvin E. Peralta Cifuentes 
  *
- * Created on 1 de junio de 2021, 07:14 PM
+ * Created on 27 de abril de 2021, 09:21 AM
+ * Ultima Actualizacion:   27 de abril de 2021
  */
+//-----------------------------------------------------------------------------------------------------------------------------------
 //Configuración PIC16F887
 // CONFIG1
 #pragma config FOSC = INTRC_NOCLKOUT// Oscillator Selection bits (RCIO oscillator: I/O function on RA6/OSC2/CLKOUT pin, RC on RA7/OSC1/CLKIN)
@@ -25,20 +31,20 @@
 #include <xc.h>
 #include <stdint.h>
 #include <pic16f887.h>
-/Declaración variables/
+//Declaración variables/
 uint8_t bandera;
 uint8_t bandera2 = 0;
 uint8_t Titileo = 0;
 //****Prototipos de funciones*****
 void setup(void);           /*funcion principal */
 //*****Interrupciones*****
-void __interrupt()isr(void) /interrupciones/
+void __interrupt()isr(void) //interrupciones/
 {
-    if (T0IF == 1)              /condicion si T0IF es 1/
+    if (T0IF == 1)              //condicion si T0IF es 1/
     {
-        Titileo++;              /Limpiar PORTC/
-        TMR0 = 243;             /Asignar valor a registro TMR0/
-        T0IF = 0;               /Limpiar bandera de interrupción/
+        Titileo++;              //Limpiar PORTC/
+        TMR0 = 243;             //Asignar valor a registro TMR0/
+        T0IF = 0;               //Limpiar bandera de interrupción/
     }
     if (PIR1bits. ADIF == 1)
     {
@@ -58,17 +64,17 @@ void __interrupt()isr(void) /interrupciones/
         {
             if (ADRESH > 200)
             {
-                PORTAbits.RA2 = Titileo; 
+                PORTBbits.RB0 = 1; 
             }
             if (ADRESH < 200 & ADRESH > 0)
             {
-                PORTAbits.RA2 = 0; 
-                PORTAbits.RA3 = 0;
+                PORTBbits.RB1 = 0; 
+                PORTBbits.RB0 = 0;
             }
 
             if (ADRESH == 0)
             {
-                PORTAbits.RA3 = Titileo;;
+                PORTBbits.RB1 = 1;
             }
         }
             PIR1bits.ADIF = 0;
@@ -76,7 +82,7 @@ void __interrupt()isr(void) /interrupciones/
 }
 //************funcionPrincipal***
 void main(void) {
-    setup();                /funcion de configuracion principal/
+    setup();                //funcion de configuracion principal/
     __delay_us(50);
     ADCON0bits.GO = 1;          //comenzar conversión
     //************LoopPrincipal****
@@ -103,30 +109,30 @@ void main(void) {
                 __delay_us(50);             //Delay para los 11 ciclos de TAP 
                 ADCON0bits.GO = 1;
         }
-        if (RB0 == 0)       /condicion si RB0 es 0/
+        if (RB0 == 0)       //condicion si RB0 es 0/
         {
-            bandera = 1;    /Asignar valor a variable/
+            bandera = 1;    //Asignar valor a variable/
             PORTAbits.RA0 = 1;
             PORTAbits.RA1 = 0;
         }
-        else                /si RB0 es diferente de 0/
+        else                //si RB0 es diferente de 0/
         {
-            if (bandera == 1){  /si bandera es 1/
-            PORTAbits.RA0 = 0;             /incrementar PORTA/
-            bandera = 0;        /Asignar valor a variable/
+            if (bandera == 1){  //si bandera es 1/
+            PORTAbits.RA0 = 0;             //incrementar PORTA/
+            bandera = 0;        //Asignar valor a variable/
             }
         }
-        if (RB1 == 0)       /condicion si RB1 es 0/
+        if (RB1 == 0)       //condicion si RB1 es 0/
         {
-            bandera2 = 1;   /Asignar valor a variable/
+            bandera2 = 1;   //Asignar valor a variable/
             PORTAbits.RA0 = 0;
             PORTAbits.RA1 = 1;
         }
-        else                /si RB1 es diferente de 0/
+        else                //si RB1 es diferente de 0/
         {
-            if (bandera2 == 1){ /si bandera2 es 1/
-            PORTAbits.RA1 = 0;            /decrementar PORTA/
-            bandera2 = 0;       /Asignar valor a variable/
+            if (bandera2 == 1){ //si bandera2 es 1/
+            PORTAbits.RA1 = 0;            //decrementar PORTA/
+            bandera2 = 0;       //Asignar valor a variable/
             }
         }
     }
@@ -205,6 +211,6 @@ void setup(void)
     PIE1bits.ADIE = 1;
     PIR1bits.ADIF = 0;      
     //Limpiar bandera de ADC
-    //INTCONbits. RBIE = 1;
-    //INTCONbits. RBIF = 0;
+    INTCONbits. RBIE = 1;
+    INTCONbits. RBIF = 0;
 }

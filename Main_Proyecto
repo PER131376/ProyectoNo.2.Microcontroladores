@@ -39,66 +39,65 @@ void __interrupt()isr(void) //interrupciones/
   
     if (PIR1bits. ADIF == 1)   //Verificamos si la interrupcion del ADC esta en 1
     {
-        if (ADCON0bits.CHS == 5) // Verifiacamos si el canal es igual a 5 
+        if (ADCON0bits.CHS == 5)//Colocamos una concion que si se encuentra en el canal 5 realice lo siguiente
         {
             CCPR1L = (ADRESH>>2) + 248; // Colocamos el valor que tenga el adresH en ese momento 
             CCP1CONbits.DC1B1 = ADRESH & 0b01; //Luego de agrega el noveno bit menos significativo de la justificacion
-            CCP1CONbits.DC1B0 = ADRESL>>7;
+            CCP1CONbits.DC1B0 = ADRESL>>7; //  Agregamos el decimo bit menos significativo de la justificacion
         }
-        if (ADCON0bits.CHS == 6)
+        if (ADCON0bits.CHS == 6) //Colocamos una concion que si se encuentra en el canal 6 realice lo siguiente
         {
-            CCPR2L   = (ADRESH>>2)+248 ;         //Aumentamos el Puerto C cuando se preciona el boton
-            CCP2CONbits.DC2B1 = ADRESH & 0b01;
-            CCP2CONbits.DC2B0 = (ADRESL>>7);
+            CCPR2L   = (ADRESH>>2)+248 ;        // Colocamos el valor que tenga el adresH en ese momento 
+            CCP2CONbits.DC2B1 = ADRESH & 0b01;  //Luego de agrega el noveno bit menos significativo de la justificacion
+            CCP2CONbits.DC2B0 = (ADRESL>>7);    //Agregamos el decimo bit menos significativo de la justificacion
         }
-        if (ADCON0bits.CHS == 7)
+        if (ADCON0bits.CHS == 7)//Colocamos una concion que si se encuentra en el canal 7 realice lo siguiente
         {
-            if (ADRESH > 200)
+            if (ADRESH > 200)   //Verificamos cuando el ADRESH tenga mas que el valor de 200 controlado por un potenciometro 
             {
-                PORTAbits.RA0 = 1; 
+                PORTAbits.RA0 = 1; //Entonces hacemos que RA0 sea 1
             }
-            if (ADRESH < 200 & ADRESH > 0)
+            if (ADRESH < 200 & ADRESH > 0) //Verificamos cuando con el potenciometro se tengo el ADRESH en el siguiente rango 
             {
-                PORTAbits.RA0 = 0; 
-                PORTAbits.RA1 = 0;
+                PORTAbits.RA0 = 0; //Colocamos RA0 en 0 
+                PORTAbits.RA1 = 0; //Colocamos RA1 en 0
             }
 
-            if (ADRESH == 0)
+            if (ADRESH == 0)//Verificamos cuando con el potenciometro se tengo el ADRESH en 0
             {
-                PORTAbits.RA1 = 1;
+                PORTAbits.RA1 = 1; //Colocamos RA1 en 1
             }
         }
-            PIR1bits.ADIF = 0;
+            PIR1bits.ADIF = 0;// Apagamos la interrupcion del ADC
     }
 }
-//************funcionPrincipal***
+//************LoopPrincipal****
 void main(void) {
     setup();                //funcion de configuracion principal/
-    __delay_us(50);
-    ADCON0bits.GO = 1;          //comenzar conversión
-    //************LoopPrincipal****
+    __delay_us(50);        //Delay para los 11 ciclos de TAP 
+    ADCON0bits.GO = 1;     //Comenzamos a convertir datos con el modulo ADC
     while(1)
-    {
-        if (ADCON0bits.GO == 0)         //Si ya termino de convertir
+    { //Suicheo para cambio da canales para el modulo ADC
+        if (ADCON0bits.GO == 0)  //Si la conversion de datos se acaba 
         {
-            if (ADCON0bits.CHS == 5)
+            if (ADCON0bits.CHS == 5) //Verificamos si esta en el canl 5
             {
-                ADCON0bits.CHS = 6;
+                ADCON0bits.CHS = 6;  //Cambioamos de canal 5 a canal 6
             }
-                __delay_us(50);             //Delay para los 11 ciclos de TAP 
-                ADCON0bits.GO = 1;
-            if (ADCON0bits.CHS == 6)
+                __delay_us(50);      //Delay para los 11 ciclos de TAP 
+                ADCON0bits.GO = 1;   //Comenzamos a convertir datos con el modulo ADC
+            if (ADCON0bits.CHS == 6) //Verificamos si esta en el canl 5
             {
-                ADCON0bits.CHS = 7;
-                __delay_us(50);             //Delay para los 11 ciclos de TAP 
-                ADCON0bits.GO = 1;
+                ADCON0bits.CHS = 7;  //Cambioamos de canal 6 a canal 7
+                __delay_us(50);      //Delay para los 11 ciclos de TAP 
+                ADCON0bits.GO = 1;   //Comenzamos a convertir datos con el modulo ADC
             }
-            if (ADCON0bits.CHS == 7)
+            if (ADCON0bits.CHS == 7) //Verificamos si esta en el canl 5
             {
-                ADCON0bits.CHS = 5;
+                ADCON0bits.CHS = 5;  //Cambioamos de canal 7 y regresamos al canal 5
             }
-                __delay_us(50);             //Delay para los 11 ciclos de TAP 
-                ADCON0bits.GO = 1;
+                __delay_us(50);       //Delay para los 11 ciclos de TAP 
+                ADCON0bits.GO = 1;   //Comenzamos a convertir datos con el modulo ADC
         }
         
     }
@@ -107,7 +106,7 @@ void main(void) {
 void setup(void)
 { 
     //**configuración io entradas y salidas*
-    ANSEL = 0b11100000;     //AN5 Y AN6
+    ANSEL = 0b11100000;     //AN5, AN6 Y AN7
     ANSELH = 0x00;     //Salidas Digitales
     
     TRISE = 0b00000111;
@@ -170,7 +169,4 @@ void setup(void)
     INTCONbits.PEIE = 1;
     PIE1bits.ADIE = 1;
     PIR1bits.ADIF = 0;      
-    //Limpiar bandera de ADC
-    //INTCONbits. RBIE = 1;
-    //INTCONbits. RBIF = 0;
 }
